@@ -11,14 +11,22 @@ class RestaurantListPage extends StatelessWidget {
       future:
           DefaultAssetBundle.of(context).loadString('assets/restaurants.json'),
       builder: (context, snapshot) {
-        final RestaurantList restaurantList =
-            parseRestaurantList(snapshot.data);
-        return ListView.builder(
-          itemCount: restaurantList.restaurants.length,
-          itemBuilder: (context, index) {
-            return _buildItem(context, restaurantList.restaurants[index]);
-          },
-        );
+        if (snapshot.hasData) {
+          final RestaurantList restaurantList =
+              parseRestaurantList(snapshot.data);
+          return ListView.builder(
+            itemCount: restaurantList.restaurants.length,
+            itemBuilder: (context, index) {
+              return _buildItem(context, restaurantList.restaurants[index]);
+            },
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(snapshot.error.toString()),
+          );
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
       },
     );
   }

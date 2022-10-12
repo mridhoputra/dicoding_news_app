@@ -1,8 +1,6 @@
-import 'package:dicoding_restaurant_app/common/styles.dart';
-import 'package:dicoding_restaurant_app/ui/restaurant_list_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
+
+import 'package:dicoding_restaurant_app/ui/restaurant_list_page.dart';
 
 class Homepage extends StatelessWidget {
   static const routeName = '/home_page';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Rating extends StatelessWidget {
   final double rating;
-  final double maximum_rating = 5;
+  final double maximumRating = 5;
 
   const Rating({Key? key, required this.rating}) : super(key: key);
 
@@ -35,7 +35,7 @@ class Rating extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ...List.generate(maximum_rating.toInt(), (index) => _buildStar(index)),
+        ...List.generate(maximumRating.toInt(), (index) => _buildStar(index)),
         const SizedBox(width: 2),
         Text(
           rating.toString(),
