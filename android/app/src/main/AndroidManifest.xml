@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.dicoding_restaurant_app">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    
    <application
         android:label="dicoding_restaurant_app"
         android:name="${applicationName}"

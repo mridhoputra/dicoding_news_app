@@ -1,7 +1,7 @@
 import 'package:dicoding_restaurant_app/common/styles.dart';
-import 'package:dicoding_restaurant_app/data/model/restaurant_list_model.dart';
 import 'package:dicoding_restaurant_app/ui/home_page.dart';
 import 'package:dicoding_restaurant_app/ui/restaurant_detail_page.dart';
+import 'package:dicoding_restaurant_app/ui/search_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -19,13 +19,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         textTheme: poppinsTextTheme,
       ),
-      initialRoute: Homepage.routeName,
+      initialRoute: HomePage.routeName,
       routes: {
-        Homepage.routeName: (context) => const Homepage(),
+        HomePage.routeName: (context) => const HomePage(),
         RestaurantDetailPage.routeName: (context) => RestaurantDetailPage(
-              restaurant:
-                  ModalRoute.of(context)?.settings.arguments as Restaurant,
+              idRestaurant: ModalRoute.of(context)?.settings.arguments as String,
             ),
+        SearchPage.routeName: (context) => const SearchPage(),
       },
     );
   }

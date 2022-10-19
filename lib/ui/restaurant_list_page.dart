@@ -1,31 +1,43 @@
+import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';
+import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
 import 'package:dicoding_restaurant_app/ui/restaurant_detail_page.dart';
 import 'package:flutter/material.dart';
 
-import 'package:dicoding_restaurant_app/data/model/restaurant_list_model.dart';
+import 'package:provider/provider.dart';
 
 class RestaurantListPage extends StatelessWidget {
   const RestaurantListPage({Key? key}) : super(key: key);
 
+  static const _imageUrl = 'https://restaurant-api.dicoding.dev/images';
+
   Widget _buildList(BuildContext context) {
-    return FutureBuilder<String>(
-      future:
-          DefaultAssetBundle.of(context).loadString('assets/restaurants.json'),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final RestaurantList restaurantList =
-              parseRestaurantList(snapshot.data);
+    return Consumer<RestaurantsProvider>(
+      builder: (context, state, _) {
+        if (state.restaurantsResultState == ResultState.loading) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [CircularProgressIndicator(), Text('Loading...')],
+            ),
+          );
+        } else if (state.restaurantsResultState == ResultState.hasData) {
+          RestaurantsResult restaurantsResult = state.restaurantResult!;
           return ListView.builder(
-            itemCount: restaurantList.restaurants.length,
+            itemCount: restaurantsResult.restaurants.length,
             itemBuilder: (context, index) {
-              return _buildItem(context, restaurantList.restaurants[index]);
+              return _buildItem(context, restaurantsResult.restaurants[index]);
             },
           );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text(snapshot.error.toString()),
-          );
         } else {
-          return const Center(child: CircularProgressIndicator());
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 12),
+              const Text("Maaf, terjadi kesalahan."),
+              const SizedBox(height: 8),
+              Text(state.restaurantResultMessage),
+            ],
+          );
         }
       },
     );
@@ -38,29 +50,28 @@ class RestaurantListPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: () {
           Navigator.pushNamed(context, RestaurantDetailPage.routeName,
-              arguments: restaurant);
+              arguments: restaurant.id);
         },
         child: Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: Column(
             children: [
               Hero(
-                tag: restaurant.pictureId,
+                tag: restaurant.pictureId!,
                 child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        )
-                      ]),
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    )
+                  ]),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Image.network(
-                      restaurant.pictureId,
+                      '$_imageUrl/medium/${restaurant.pictureId!}',
                       width: double.infinity,
                       height: 200,
                       alignment: Alignment.topCenter,
@@ -76,7 +87,7 @@ class RestaurantListPage extends StatelessWidget {
                   children: [
                     const SizedBox(height: 4),
                     Text(
-                      restaurant.name,
+                      restaurant.name!,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 2),
@@ -104,7 +115,7 @@ class RestaurantListPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          restaurant.city,
+                          restaurant.city!,
                           style: Theme.of(context).textTheme.caption,
                         ),
                       ],
