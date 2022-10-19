@@ -17,7 +17,11 @@ class RestaurantListPage extends StatelessWidget {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [CircularProgressIndicator(), Text('Loading...')],
+              children: const [
+                CircularProgressIndicator(),
+                SizedBox(height: 4),
+                Text('Loading...')
+              ],
             ),
           );
         } else if (state.restaurantsResultState == ResultState.hasData) {
