@@ -54,6 +54,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
 
   Widget _buildDetailPage(BuildContext context) {
     Restaurant restaurantDetail = _restaurant.restaurant;
+    double imageHeight = MediaQuery.of(context).orientation == Orientation.portrait
+        ? (MediaQuery.of(context).size.height * 0.32)
+        : (MediaQuery.of(context).size.height * 0.44);
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) {
         return [
@@ -63,18 +66,14 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               top: false,
               sliver: SliverAppBar(
                 pinned: true,
-                expandedHeight: MediaQuery.of(context).orientation == Orientation.portrait
-                    ? (MediaQuery.of(context).size.height * 0.32)
-                    : (MediaQuery.of(context).size.height * 0.44),
+                expandedHeight: imageHeight,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Hero(
                     tag: restaurantDetail.pictureId,
                     child: Image.network(
                       '$_imageUrl/medium/${restaurantDetail.pictureId}',
-                      height: MediaQuery.of(context).orientation == Orientation.portrait
-                          ? (MediaQuery.of(context).size.height * 0.32)
-                          : (MediaQuery.of(context).size.height * 0.44),
                       fit: BoxFit.cover,
+                      height: imageHeight,
                       alignment: Alignment.topCenter,
                       width: MediaQuery.of(context).size.width,
                     ),
@@ -141,14 +140,33 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
   }
 
   Widget _buildLoadingPage(BuildContext context) {
+    double imageHeight = MediaQuery.of(context).orientation == Orientation.portrait
+        ? (MediaQuery.of(context).size.height * 0.32)
+        : (MediaQuery.of(context).size.height * 0.44);
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppBar(
-            title: const Text('Detail Restoran'),
-            foregroundColor: Colors.black,
-            backgroundColor: Colors.white,
+          Stack(
+            children: [
+              Container(
+                height: imageHeight,
+                color: Colors.grey,
+              ),
+              InkWell(
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: Colors.white,
+                    )),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
           ),
           Expanded(
             child: Column(
