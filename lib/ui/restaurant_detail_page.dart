@@ -48,12 +48,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     }
   }
 
-  Widget _buildMenuItem(String menu) {
-    return Text('- $menu');
-  }
-
   Widget _buildDetailPage(BuildContext context) {
     Restaurant restaurantDetail = _restaurant.restaurant;
+    print(restaurantDetail);
     double imageHeight = MediaQuery.of(context).orientation == Orientation.portrait
         ? (MediaQuery.of(context).size.height * 0.32)
         : (MediaQuery.of(context).size.height * 0.44);
@@ -100,13 +97,35 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                         .headline5!
                         .copyWith(height: 1, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
-                    restaurantDetail.city,
+                    '${restaurantDetail.address}, ${restaurantDetail.city}',
                     style: Theme.of(context).textTheme.caption!.copyWith(height: 1),
                   ),
-                  const SizedBox(height: 4),
-                  Rating(rating: restaurantDetail.rating),
+                  const SizedBox(height: 8),
+                  Rating(
+                    rating: restaurantDetail.rating,
+                    reviewCount: restaurantDetail.customerReviews!.isEmpty
+                        ? 0
+                        : restaurantDetail.customerReviews!.length,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: restaurantDetail.categories.map((category) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: const BoxDecoration(
+                            color: Color(0xFFE8E8E8),
+                            borderRadius: BorderRadius.all(Radius.circular(24))),
+                        child: Text(
+                          category.name,
+                          style: const TextStyle(
+                              color: Color(0xFF8B8B8B), fontWeight: FontWeight.bold),
+                        ),
+                      );
+                    }).toList(),
+                  ),
                   const SizedBox(height: 16),
                   Text('Deskripsi Restoran:', style: Theme.of(context).textTheme.caption),
                   Text(restaurantDetail.description),
@@ -120,7 +139,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                         ),
                   ),
                   ...List.generate(restaurantDetail.menus.foods.length,
-                      (index) => _buildMenuItem(restaurantDetail.menus.foods[index].name)),
+                      (index) => Text('- ${restaurantDetail.menus.foods[index].name}')),
                   const SizedBox(height: 8),
                   Text(
                     'Minuman:',
@@ -129,7 +148,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                         ),
                   ),
                   ...List.generate(restaurantDetail.menus.drinks.length,
-                      (index) => _buildMenuItem(restaurantDetail.menus.drinks[index].name)),
+                      (index) => Text('- ${restaurantDetail.menus.drinks[index].name}')),
                 ],
               ),
             ),
