@@ -61,7 +61,7 @@ class RestaurantListPage extends StatelessWidget {
           child: Column(
             children: [
               Hero(
-                tag: restaurant.pictureId!,
+                tag: restaurant.pictureId,
                 child: Container(
                   decoration:
                       BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [
@@ -75,7 +75,7 @@ class RestaurantListPage extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Image.network(
-                      '$_imageUrl/medium/${restaurant.pictureId!}',
+                      '$_imageUrl/medium/${restaurant.pictureId}',
                       width: double.infinity,
                       height: 200,
                       alignment: Alignment.topCenter,
@@ -91,7 +91,7 @@ class RestaurantListPage extends StatelessWidget {
                   children: [
                     const SizedBox(height: 4),
                     Text(
-                      restaurant.name!,
+                      restaurant.name,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 2),
@@ -119,7 +119,7 @@ class RestaurantListPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          restaurant.city!,
+                          restaurant.city,
                           style: Theme.of(context).textTheme.caption,
                         ),
                       ],

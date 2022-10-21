@@ -17,7 +17,7 @@ class RestaurantDetailPage extends StatefulWidget {
 
 class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
   String _restaurantDetailMessage = '';
-  late RestaurantDetail _restaurant;
+  late RestaurantDetail _restaurantDetail;
   bool _loading = false;
 
   static const _imageUrl = 'https://restaurant-api.dicoding.dev/images';
@@ -36,7 +36,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
       } else {
         setState(() {
           _loading = false;
-          _restaurant = response;
+          _restaurantDetail = response;
           _restaurantDetailMessage = '';
         });
       }
@@ -49,8 +49,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
   }
 
   Widget _buildDetailPage(BuildContext context) {
-    Restaurant restaurantDetail = _restaurant.restaurant;
-    print(restaurantDetail);
+    Restaurant restaurantDetail = _restaurantDetail.restaurant;
     double imageHeight = MediaQuery.of(context).orientation == Orientation.portrait
         ? (MediaQuery.of(context).size.height * 0.32)
         : (MediaQuery.of(context).size.height * 0.44);
@@ -147,8 +146,12 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                  ...List.generate(restaurantDetail.menus.drinks.length,
-                      (index) => Text('- ${restaurantDetail.menus.drinks[index].name}')),
+                  ...List.generate(
+                    restaurantDetail.menus.drinks.length,
+                    (index) => Text('- ${restaurantDetail.menus.drinks[index].name}'),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildReviewList(context),
                 ],
               ),
             ),
@@ -222,6 +225,62 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildReviewList(BuildContext context) {
+    if (_restaurantDetail.restaurant.customerReviews!.isNotEmpty) {
+      var customerReviews = _restaurantDetail.restaurant.customerReviews!;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Ulasan Pengguna', style: Theme.of(context).textTheme.caption),
+          const SizedBox(height: 8),
+          ...List.generate(customerReviews.length, (index) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        customerReviews[index].name.substring(0, 1).toUpperCase(),
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(customerReviews[index].name),
+                        const SizedBox(height: 2),
+                        Text(
+                          customerReviews[index].date,
+                          style: Theme.of(context).textTheme.caption!.copyWith(
+                                fontSize: 10,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text('Ulasan: ${customerReviews[index].review}'),
+                const SizedBox(height: 8),
+              ],
+            );
+          })
+        ],
+      );
+    } else {
+      return Container();
+    }
   }
 
   @override

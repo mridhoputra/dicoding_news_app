@@ -30,19 +30,19 @@ class RestaurantsResult {
 class Restaurant {
   Restaurant({
     required this.id,
-    this.name,
-    this.description,
-    this.pictureId,
-    this.city,
-    this.rating,
+    required this.name,
+    required this.description,
+    required this.pictureId,
+    required this.city,
+    required this.rating,
   });
 
   String id;
-  String? name;
-  String? description;
-  String? pictureId;
-  String? city;
-  double? rating;
+  String name;
+  String description;
+  String pictureId;
+  String city;
+  double rating;
 
   factory Restaurant.fromJson(Map<String, dynamic> json) => Restaurant(
         id: json["id"],

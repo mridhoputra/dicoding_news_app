@@ -1,7 +1,6 @@
+import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';

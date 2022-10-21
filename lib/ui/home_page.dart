@@ -1,6 +1,6 @@
 import 'package:dicoding_restaurant_app/data/api/api_service.dart';
 import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
-import 'package:dicoding_restaurant_app/ui/search_page.dart';
+import 'package:dicoding_restaurant_app/ui/restaurant_search_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dicoding_restaurant_app/ui/restaurant_list_page.dart';
@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
                       child: Icon(Icons.search, size: 28),
                     ),
                     onTap: () {
-                      Navigator.pushNamed(context, SearchPage.routeName);
+                      Navigator.pushNamed(context, RestaurantSearchPage.routeName);
                     },
                   )
                 ],

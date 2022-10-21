@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dicoding_restaurant_app/data/api/api_service.dart';
 import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';
 import 'package:flutter/material.dart';

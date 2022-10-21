@@ -1,7 +1,7 @@
 import 'package:dicoding_restaurant_app/common/styles.dart';
 import 'package:dicoding_restaurant_app/ui/home_page.dart';
 import 'package:dicoding_restaurant_app/ui/restaurant_detail_page.dart';
-import 'package:dicoding_restaurant_app/ui/search_page.dart';
+import 'package:dicoding_restaurant_app/ui/restaurant_search_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         RestaurantDetailPage.routeName: (context) => RestaurantDetailPage(
               idRestaurant: ModalRoute.of(context)?.settings.arguments as String,
             ),
-        SearchPage.routeName: (context) => const SearchPage(),
+        RestaurantSearchPage.routeName: (context) => const RestaurantSearchPage(),
       },
     );
   }
