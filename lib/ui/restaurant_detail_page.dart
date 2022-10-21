@@ -3,6 +3,7 @@ import 'package:dicoding_restaurant_app/data/model/restaurant_detail_model.dart'
 import 'package:flutter/material.dart';
 
 import 'package:dicoding_restaurant_app/widgets/rating.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RestaurantDetailPage extends StatefulWidget {
   static const routeName = '/restaurant_detail';
@@ -16,9 +17,11 @@ class RestaurantDetailPage extends StatefulWidget {
 }
 
 class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
+  bool _loading = false;
   String _restaurantDetailMessage = '';
   late RestaurantDetail _restaurantDetail;
-  bool _loading = false;
+  String _reviewName = '';
+  String _reviewText = '';
 
   static const _imageUrl = 'https://restaurant-api.dicoding.dev/images';
 
@@ -40,6 +43,40 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
           _restaurantDetailMessage = '';
         });
       }
+    } catch (e) {
+      setState(() {
+        _loading = false;
+        _restaurantDetailMessage = '$e';
+      });
+    }
+  }
+
+  Future<dynamic> _fetchAddReview() async {
+    try {
+      setState(() {
+        _loading = true;
+      });
+      final response =
+          await ApiService().addReview(widget.idRestaurant, _reviewName, _reviewText);
+      if (response.error) {
+        Fluttertoast.showToast(
+          msg: 'Ulasan gagal dikirim',
+          toastLength: Toast.LENGTH_LONG,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: 'Ulasan berhasil dikirim',
+          toastLength: Toast.LENGTH_LONG,
+        );
+        setState(() {
+          _reviewName = '';
+          _reviewText = '';
+        });
+        _fetchDetailRestaurant();
+      }
+      setState(() {
+        _loading = false;
+      });
     } catch (e) {
       setState(() {
         _loading = false;
@@ -151,7 +188,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                     (index) => Text('- ${restaurantDetail.menus.drinks[index].name}'),
                   ),
                   const SizedBox(height: 16),
-                  _buildReviewList(context),
+                  _buildSectionListReview(context),
+                  const SizedBox(height: 16),
+                  _buildSectionSendReview(context),
                 ],
               ),
             ),
@@ -227,7 +266,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     );
   }
 
-  Widget _buildReviewList(BuildContext context) {
+  Widget _buildSectionListReview(BuildContext context) {
     if (_restaurantDetail.restaurant.customerReviews!.isNotEmpty) {
       var customerReviews = _restaurantDetail.restaurant.customerReviews!;
       return Column(
@@ -281,6 +320,110 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     } else {
       return Container();
     }
+  }
+
+  Widget _buildSectionSendReview(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Divider(
+          thickness: 1.5,
+          color: Colors.grey,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Pernah makan disini? Yuk kasih ulasan!',
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          textInputAction: TextInputAction.next,
+          style: const TextStyle(fontSize: 14),
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            isDense: true,
+            hintText: 'Masukkan nama anda',
+            labelText: 'Nama',
+          ),
+          onChanged: (value) {
+            setState(() {
+              _reviewName = value;
+            });
+          },
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          maxLines: null,
+          style: const TextStyle(fontSize: 14),
+          keyboardType: TextInputType.multiline,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            isDense: true,
+            labelText: 'Ulasan',
+            hintText: 'Masukkan ulasan anda',
+          ),
+          onChanged: (value) {
+            setState(() {
+              _reviewText = value;
+            });
+          },
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () {
+            _showAlertDialog(context);
+          },
+          child: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              'Kirim Ulasan',
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Divider(
+          thickness: 1.5,
+          color: Colors.grey,
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Future<dynamic> _showAlertDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Kirim Ulasan'),
+            content: const Text('Apakah anda yakin untuk mengirim ulasan ini?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  if (_reviewName != '' && _reviewText != '') {
+                    _fetchAddReview();
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: 'Nama dan isi ulasan harus diisi',
+                      toastLength: Toast.LENGTH_LONG,
+                    );
+                  }
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        });
   }
 
   @override
