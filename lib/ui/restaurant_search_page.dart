@@ -1,7 +1,9 @@
-import 'package:dicoding_restaurant_app/data/api/api_service.dart';
-import 'package:dicoding_restaurant_app/data/model/restaurant_search_model.dart';
-import 'package:dicoding_restaurant_app/ui/restaurant_detail_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:dicoding_restaurant_app/ui/restaurant_detail_page.dart';
+import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
+import 'package:dicoding_restaurant_app/data/model/restaurant_search_model.dart';
 
 class RestaurantSearchPage extends StatefulWidget {
   static const routeName = '/search_page';
@@ -16,40 +18,10 @@ class RestaurantSearchPage extends StatefulWidget {
 
 class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
   String _query = '';
-  bool _loading = false;
-  bool _initialPage = true;
-  String _restaurantSearchMessage = '';
-  late RestaurantSearch _restaurantSearch;
   static const _imageUrl = 'https://restaurant-api.dicoding.dev/images';
 
-  Future<dynamic> _fetchRestaurantByName() async {
-    try {
-      setState(() {
-        _loading = true;
-      });
-      final response = await ApiService().getSearchRestaurant(_query);
-      if (response.error) {
-        setState(() {
-          _loading = false;
-          _restaurantSearchMessage = 'Hasil restoran tidak ditemukan';
-        });
-      } else {
-        setState(() {
-          _loading = false;
-          _restaurantSearch = response;
-          _restaurantSearchMessage = '';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _loading = false;
-        _restaurantSearchMessage = '$e';
-      });
-    }
-  }
-
-  Widget _buildList(BuildContext context) {
-    if (_restaurantSearch.restaurants.isEmpty) {
+  Widget _buildList(BuildContext context, RestaurantSearch restaurantSearch) {
+    if (restaurantSearch.restaurants!.isEmpty) {
       return const Expanded(
         child: Center(
           child: Text('Hasil restoran tidak ditemukan'),
@@ -59,9 +31,9 @@ class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
       return Expanded(
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: _restaurantSearch.restaurants.length,
+          itemCount: restaurantSearch.restaurants!.length,
           itemBuilder: (context, index) {
-            return _buildItem(context, _restaurantSearch.restaurants[index]);
+            return _buildItem(context, restaurantSearch.restaurants![index]);
           },
         ),
       );
@@ -155,31 +127,39 @@ class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
     );
   }
 
-  Widget _buildLoadingPage(BuildContext context) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: const [
-          CircularProgressIndicator(),
-          SizedBox(height: 8),
-          Text('Loading'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorPage(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Maaf, terjadi kesalahan,'),
-          const SizedBox(height: 8),
-          Text(_restaurantSearchMessage),
-        ],
-      ),
+  Widget _buildSearchResult(BuildContext context) {
+    return Consumer<RestaurantsProvider>(
+      builder: (context, state, _) {
+        if (state.restaurantSearchState == ResultState.initial) {
+          return Container();
+        } else if (state.restaurantSearchState == ResultState.loading) {
+          return Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: const [
+                CircularProgressIndicator(),
+                SizedBox(height: 8),
+                Text('Loading'),
+              ],
+            ),
+          );
+        } else if (state.restaurantSearchState == ResultState.hasData) {
+          return _buildList(context, state.restaurantSearch!);
+        } else {
+          return Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Maaf, terjadi kesalahan,'),
+                const SizedBox(height: 8),
+                Text(state.restaurantSearchMessage),
+              ],
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -244,21 +224,13 @@ class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
                 onEditingComplete: () {
                   FocusManager.instance.primaryFocus?.unfocus();
                   if (_query != '') {
-                    _fetchRestaurantByName();
-                  }
-                  if (_initialPage == true) {
-                    _initialPage = false;
+                    Provider.of<RestaurantsProvider>(context, listen: false)
+                        .fetchRestaurantByName(_query);
                   }
                 },
               ),
               const SizedBox(height: 16),
-              _initialPage
-                  ? Container()
-                  : _loading
-                      ? _buildLoadingPage(context)
-                      : _restaurantSearchMessage == ''
-                          ? _buildList(context)
-                          : _buildErrorPage(context),
+              _buildSearchResult(context),
             ],
           ),
         ),

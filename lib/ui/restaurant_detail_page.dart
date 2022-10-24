@@ -1,9 +1,10 @@
-import 'package:dicoding_restaurant_app/data/api/api_service.dart';
-import 'package:dicoding_restaurant_app/data/model/restaurant_detail_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:dicoding_restaurant_app/widgets/rating.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
+import 'package:dicoding_restaurant_app/data/model/restaurant_detail_model.dart';
 
 class RestaurantDetailPage extends StatefulWidget {
   static const routeName = '/restaurant_detail';
@@ -17,258 +18,14 @@ class RestaurantDetailPage extends StatefulWidget {
 }
 
 class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
-  bool _loading = false;
-  String _restaurantDetailMessage = '';
-  late RestaurantDetail _restaurantDetail;
   String _reviewName = '';
   String _reviewText = '';
 
   static const _imageUrl = 'https://restaurant-api.dicoding.dev/images';
 
-  Future<dynamic> _fetchDetailRestaurant() async {
-    try {
-      setState(() {
-        _loading = true;
-      });
-      final response = await ApiService().getDetailRestaurant(widget.idRestaurant);
-      if (response.error) {
-        setState(() {
-          _loading = false;
-          _restaurantDetailMessage = 'Detail restoran tidak ditemukan';
-        });
-      } else {
-        setState(() {
-          _loading = false;
-          _restaurantDetail = response;
-          _restaurantDetailMessage = '';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _loading = false;
-        _restaurantDetailMessage = '$e';
-      });
-    }
-  }
-
-  Future<dynamic> _fetchAddReview() async {
-    try {
-      setState(() {
-        _loading = true;
-      });
-      final response =
-          await ApiService().addReview(widget.idRestaurant, _reviewName, _reviewText);
-      if (response.error) {
-        Fluttertoast.showToast(
-          msg: 'Ulasan gagal dikirim',
-          toastLength: Toast.LENGTH_LONG,
-        );
-      } else {
-        Fluttertoast.showToast(
-          msg: 'Ulasan berhasil dikirim',
-          toastLength: Toast.LENGTH_LONG,
-        );
-        setState(() {
-          _reviewName = '';
-          _reviewText = '';
-        });
-        _fetchDetailRestaurant();
-      }
-      setState(() {
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _loading = false;
-        _restaurantDetailMessage = '$e';
-      });
-    }
-  }
-
-  Widget _buildDetailPage(BuildContext context) {
-    Restaurant restaurantDetail = _restaurantDetail.restaurant;
-    double imageHeight = MediaQuery.of(context).orientation == Orientation.portrait
-        ? (MediaQuery.of(context).size.height * 0.32)
-        : (MediaQuery.of(context).size.height * 0.44);
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) {
-        return [
-          SliverOverlapAbsorber(
-            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-            sliver: SliverSafeArea(
-              top: false,
-              sliver: SliverAppBar(
-                pinned: true,
-                expandedHeight: imageHeight,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Hero(
-                    tag: restaurantDetail.pictureId,
-                    child: Image.network(
-                      '$_imageUrl/medium/${restaurantDetail.pictureId}',
-                      fit: BoxFit.cover,
-                      height: imageHeight,
-                      alignment: Alignment.topCenter,
-                      width: MediaQuery.of(context).size.width,
-                    ),
-                  ),
-                ),
-                title: innerBoxIsScrolled ? const Text('Detail Restoran') : const Text(''),
-              ),
-            ),
-          )
-        ];
-      },
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    restaurantDetail.name,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5!
-                        .copyWith(height: 1, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${restaurantDetail.address}, ${restaurantDetail.city}',
-                    style: Theme.of(context).textTheme.caption!.copyWith(height: 1),
-                  ),
-                  const SizedBox(height: 8),
-                  Rating(
-                    rating: restaurantDetail.rating,
-                    reviewCount: restaurantDetail.customerReviews!.isEmpty
-                        ? 0
-                        : restaurantDetail.customerReviews!.length,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: restaurantDetail.categories.map((category) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        margin: const EdgeInsets.only(right: 12),
-                        decoration: const BoxDecoration(
-                            color: Color(0xFFE8E8E8),
-                            borderRadius: BorderRadius.all(Radius.circular(24))),
-                        child: Text(
-                          category.name,
-                          style: const TextStyle(
-                              color: Color(0xFF8B8B8B), fontWeight: FontWeight.bold),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                  Text('Deskripsi Restoran:', style: Theme.of(context).textTheme.caption),
-                  Text(restaurantDetail.description),
-                  const SizedBox(height: 16),
-                  Text('Menu yang tersedia', style: Theme.of(context).textTheme.caption),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Makanan:',
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  ...List.generate(restaurantDetail.menus.foods.length,
-                      (index) => Text('- ${restaurantDetail.menus.foods[index].name}')),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Minuman:',
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  ...List.generate(
-                    restaurantDetail.menus.drinks.length,
-                    (index) => Text('- ${restaurantDetail.menus.drinks[index].name}'),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSectionListReview(context),
-                  const SizedBox(height: 16),
-                  _buildSectionSendReview(context),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingPage(BuildContext context) {
-    double imageHeight = MediaQuery.of(context).orientation == Orientation.portrait
-        ? (MediaQuery.of(context).size.height * 0.32)
-        : (MediaQuery.of(context).size.height * 0.44);
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Stack(
-            children: [
-              Container(
-                height: imageHeight,
-                color: Colors.grey,
-              ),
-              InkWell(
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                child: const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: Colors.white,
-                    )),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                CircularProgressIndicator(),
-                SizedBox(height: 4),
-                Text('Loading...')
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorPage(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          AppBar(title: const Text('Detail Restoran')),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text('Maaf, terjadi kesalahan.'),
-                const SizedBox(height: 8),
-                Text(_restaurantDetailMessage),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionListReview(BuildContext context) {
-    if (_restaurantDetail.restaurant.customerReviews!.isNotEmpty) {
-      var customerReviews = _restaurantDetail.restaurant.customerReviews!;
+  Widget _buildSectionListReview(BuildContext context, Restaurant restaurantDetail) {
+    if (restaurantDetail.customerReviews!.isNotEmpty) {
+      var customerReviews = restaurantDetail.customerReviews!;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -294,18 +51,20 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(customerReviews[index].name),
-                        const SizedBox(height: 2),
-                        Text(
-                          customerReviews[index].date,
-                          style: Theme.of(context).textTheme.caption!.copyWith(
-                                fontSize: 10,
-                              ),
-                        ),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(customerReviews[index].name),
+                          const SizedBox(height: 2),
+                          Text(
+                            customerReviews[index].date,
+                            style: Theme.of(context).textTheme.caption!.copyWith(
+                                  fontSize: 10,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -322,7 +81,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     }
   }
 
-  Widget _buildSectionSendReview(BuildContext context) {
+  Widget _buildSectionSendReview(BuildContext context, RestaurantsProvider state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -357,7 +116,6 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
         TextField(
           maxLines: null,
           style: const TextStyle(fontSize: 14),
-          keyboardType: TextInputType.multiline,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             isDense: true,
@@ -371,18 +129,47 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
           },
         ),
         const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () {
-            _showAlertDialog(context);
-          },
-          child: const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              'Kirim Ulasan',
-              style: TextStyle(fontSize: 14),
-            ),
-          ),
-        ),
+        state.restaurantAddReviewState == ResultState.loading
+            ? Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                    color: Theme.of(context).disabledColor,
+                    borderRadius: BorderRadius.circular(4)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      child: const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Loading...',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: Colors.white,
+                          ),
+                    )
+                  ],
+                ),
+              )
+            : ElevatedButton(
+                onPressed: () {
+                  _showAlertDialog(context, state);
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    'Kirim Ulasan',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ),
+              ),
         const SizedBox(height: 16),
         const Divider(
           thickness: 1.5,
@@ -393,7 +180,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     );
   }
 
-  Future<dynamic> _showAlertDialog(BuildContext context) {
+  Future<dynamic> _showAlertDialog(BuildContext context, RestaurantsProvider state) {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -410,8 +197,23 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
+                  FocusScopeNode currentFocus = FocusScope.of(context);
+                  currentFocus.unfocus();
+
                   if (_reviewName != '' && _reviewText != '') {
-                    _fetchAddReview();
+                    state
+                        .fetchAddReview(widget.idRestaurant, _reviewName, _reviewText)
+                        .then(
+                      (String result) {
+                        Fluttertoast.showToast(
+                          msg: result,
+                          toastLength: Toast.LENGTH_LONG,
+                        );
+                        if (result == 'Ulasan berhasil dikirim') {
+                          state.fetchDetailRestaurant(widget.idRestaurant);
+                        }
+                      },
+                    );
                   } else {
                     Fluttertoast.showToast(
                       msg: 'Nama dan isi ulasan harus diisi',
@@ -426,19 +228,208 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
         });
   }
 
+  Widget _buildDetailPage(BuildContext context) {
+    double imageHeight = MediaQuery.of(context).orientation == Orientation.portrait
+        ? (MediaQuery.of(context).size.height * 0.32)
+        : (MediaQuery.of(context).size.height * 0.44);
+
+    return Consumer<RestaurantsProvider>(
+      builder: (context, state, _) {
+        if (state.restaurantDetailState == ResultState.loading) {
+          return SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      height: imageHeight,
+                      color: Colors.grey,
+                    ),
+                    InkWell(
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      child: const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Icon(
+                            Icons.arrow_back,
+                            size: 20,
+                            color: Colors.white,
+                          )),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 4),
+                      Text('Loading...')
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        } else if (state.restaurantDetailState == ResultState.hasData) {
+          Restaurant restaurantDetail = state.restaurantDetail!.restaurant!;
+          return NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverOverlapAbsorber(
+                  handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                  sliver: SliverSafeArea(
+                    top: false,
+                    sliver: SliverAppBar(
+                      pinned: true,
+                      expandedHeight: imageHeight,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: Hero(
+                          tag: restaurantDetail.pictureId,
+                          child: Image.network(
+                            '$_imageUrl/medium/${restaurantDetail.pictureId}',
+                            fit: BoxFit.cover,
+                            height: imageHeight,
+                            alignment: Alignment.topCenter,
+                            width: MediaQuery.of(context).size.width,
+                          ),
+                        ),
+                      ),
+                      title: innerBoxIsScrolled
+                          ? const Text('Detail Restoran')
+                          : const Text(''),
+                    ),
+                  ),
+                )
+              ];
+            },
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          restaurantDetail.name,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline5!
+                              .copyWith(height: 1, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${restaurantDetail.address}, ${restaurantDetail.city}',
+                          style: Theme.of(context).textTheme.caption!.copyWith(height: 1),
+                        ),
+                        const SizedBox(height: 8),
+                        Rating(
+                          rating: restaurantDetail.rating,
+                          reviewCount: restaurantDetail.customerReviews!.isEmpty
+                              ? 0
+                              : restaurantDetail.customerReviews!.length,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: restaurantDetail.categories.map((category) {
+                            return Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              margin: const EdgeInsets.only(right: 12),
+                              decoration: const BoxDecoration(
+                                  color: Color(0xFFE8E8E8),
+                                  borderRadius: BorderRadius.all(Radius.circular(24))),
+                              child: Text(
+                                category.name,
+                                style: const TextStyle(
+                                    color: Color(0xFF8B8B8B), fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Deskripsi Restoran:',
+                            style: Theme.of(context).textTheme.caption),
+                        Text(restaurantDetail.description),
+                        const SizedBox(height: 16),
+                        Text('Menu yang tersedia',
+                            style: Theme.of(context).textTheme.caption),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Makanan:',
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        ...List.generate(
+                            restaurantDetail.menus.foods.length,
+                            (index) =>
+                                Text('- ${restaurantDetail.menus.foods[index].name}')),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Minuman:',
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        ...List.generate(
+                          restaurantDetail.menus.drinks.length,
+                          (index) => Text('- ${restaurantDetail.menus.drinks[index].name}'),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSectionListReview(context, restaurantDetail),
+                        const SizedBox(height: 16),
+                        _buildSectionSendReview(context, state),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else {
+          return SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppBar(title: const Text('Detail Restoran')),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text('Maaf, terjadi kesalahan.'),
+                      const SizedBox(height: 8),
+                      Text(state.restaurantDetailMessage),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    _fetchDetailRestaurant();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<RestaurantsProvider>(context, listen: false)
+          .fetchDetailRestaurant(widget.idRestaurant);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: _loading
-            ? _buildLoadingPage(context)
-            : _restaurantDetailMessage == ''
-                ? _buildDetailPage(context)
-                : _buildErrorPage(context));
+      body: _buildDetailPage(context),
+    );
   }
 }

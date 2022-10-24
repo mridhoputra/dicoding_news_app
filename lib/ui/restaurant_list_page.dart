@@ -13,7 +13,7 @@ class RestaurantListPage extends StatelessWidget {
   Widget _buildList(BuildContext context) {
     return Consumer<RestaurantsProvider>(
       builder: (context, state, _) {
-        if (state.restaurantsResultState == ResultState.loading) {
+        if (state.restaurantResultState == ResultState.loading) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -24,12 +24,12 @@ class RestaurantListPage extends StatelessWidget {
               ],
             ),
           );
-        } else if (state.restaurantsResultState == ResultState.hasData) {
+        } else if (state.restaurantResultState == ResultState.hasData) {
           RestaurantsResult restaurantsResult = state.restaurantResult!;
           return ListView.builder(
-            itemCount: restaurantsResult.restaurants.length,
+            itemCount: restaurantsResult.restaurants!.length,
             itemBuilder: (context, index) {
-              return _buildItem(context, restaurantsResult.restaurants[index]);
+              return _buildItem(context, restaurantsResult.restaurants![index]);
             },
           );
         } else {

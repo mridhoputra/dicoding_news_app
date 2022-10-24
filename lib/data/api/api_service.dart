@@ -77,12 +77,12 @@ class ApiService {
       if (response.statusCode == 201) {
         return PostReviewResponse.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Gagal memuat hasil pencarian restoran');
+        throw Exception('Ulasan gagal dikirim, statusCode: ${response.statusCode}');
       }
     } on TimeoutException {
       throw Exception('Server tidak merespon, silahkan coba lagi nanti');
     } on SocketException {
-      throw Exception('Gagal memuat list restoran, silahkan periksa koneksi internet anda');
+      throw Exception('Ulasan gagal dikirim, silahkan periksa koneksi internet anda');
     } on Error {
       throw Exception('Silahkan coba lagi nanti');
     }

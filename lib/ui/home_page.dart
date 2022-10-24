@@ -1,17 +1,30 @@
-import 'package:dicoding_restaurant_app/data/api/api_service.dart';
 import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
-import 'package:dicoding_restaurant_app/ui/restaurant_search_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dicoding_restaurant_app/ui/restaurant_list_page.dart';
+import 'package:dicoding_restaurant_app/ui/restaurant_search_page.dart';
 import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   static const routeName = '/home_page';
 
   static final now = DateTime.now();
 
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<RestaurantsProvider>(context, listen: false).fetchAllRestaurants();
+    });
+  }
 
   String formatGreeting() {
     DateTime currentTime = DateTime.now();
@@ -69,11 +82,8 @@ class HomePage extends StatelessWidget {
                     .copyWith(fontWeight: FontWeight.bold, color: Colors.grey),
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child: ChangeNotifierProvider<RestaurantsProvider>(
-                  create: (_) => RestaurantsProvider(apiService: ApiService()),
-                  child: const RestaurantListPage(),
-                ),
+              const Expanded(
+                child: RestaurantListPage(),
               ),
             ],
           ),
