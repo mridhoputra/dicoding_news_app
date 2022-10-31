@@ -298,6 +298,18 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           ),
                         ),
                       ),
+                      actions: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: IconButton(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(content: Text('OK')));
+                            },
+                            icon: Icon(Icons.favorite_border_rounded),
+                          ),
+                        )
+                      ],
                       title: innerBoxIsScrolled
                           ? const Text('Detail Restoran')
                           : const Text(''),

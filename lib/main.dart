@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider<RestaurantsProvider>(
       create: (_) => RestaurantsProvider(apiService: ApiService()),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,

@@ -1,30 +1,14 @@
+import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';
+import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
+import 'package:dicoding_restaurant_app/ui/restaurant_detail_page.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 
-import 'package:dicoding_restaurant_app/ui/restaurant_detail_page.dart';
-import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
-import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';
-
-class RestaurantListPage extends StatelessWidget {
-  const RestaurantListPage({Key? key}) : super(key: key);
+class RestaurantFavoritePage extends StatelessWidget {
+  const RestaurantFavoritePage({Key? key}) : super(key: key);
 
   static const _imageUrl = 'https://restaurant-api.dicoding.dev/images';
-
-  String formatGreeting() {
-    DateTime currentTime = DateTime.now();
-    int currentHour = currentTime.hour;
-    if (currentHour >= 5 && currentHour < 11) {
-      return 'Selamat Pagi,';
-    } else if (currentHour >= 11 && currentHour < 15) {
-      return 'Selamat Siang,';
-    } else if (currentHour >= 15 && currentHour < 18) {
-      return 'Selamat Sore,';
-    } else if (currentHour >= 18 || currentHour < 5) {
-      return 'Selamat Malam,';
-    } else {
-      return 'Selamat Datang,';
-    }
-  }
 
   Widget _buildList(BuildContext context) {
     return Consumer<RestaurantsProvider>(
@@ -158,13 +142,13 @@ class RestaurantListPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            formatGreeting(),
+            'Restoran Favorit',
             style: Theme.of(context).textTheme.headline5!.copyWith(
                 color: Colors.black, fontWeight: FontWeight.bold, letterSpacing: 0.5),
           ),
           const SizedBox(height: 2),
           Text(
-            'Mau makan dimana hari ini?',
+            'Restoran pilihanmu dalam satu halaman',
             style: Theme.of(context)
                 .textTheme
                 .caption!

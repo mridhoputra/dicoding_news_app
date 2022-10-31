@@ -1,4 +1,5 @@
 import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
+import 'package:dicoding_restaurant_app/ui/restaurant_favorite_page.dart';
 import 'package:dicoding_restaurant_app/ui/restaurant_search_page.dart';
 import 'package:flutter/material.dart';
 
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _listWidget = [
     const RestaurantListPage(),
     const RestaurantSearchPage(),
-    const RestaurantSearchPage(),
+    const RestaurantFavoritePage(),
     const RestaurantSearchPage(),
   ];
 
