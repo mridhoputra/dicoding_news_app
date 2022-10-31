@@ -172,32 +172,12 @@ class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  InkWell(
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                    child: const Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.arrow_back,
-                          size: 20,
-                        )),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Pencarian',
-                    style: Theme.of(context).textTheme.headline5!.copyWith(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5),
-                  ),
-                  const SizedBox(width: 32),
-                ],
+              Text(
+                'Pencarian',
+                style: Theme.of(context).textTheme.headline5!.copyWith(
+                    color: Colors.black, fontWeight: FontWeight.bold, letterSpacing: 0.5),
               ),
+              const SizedBox(width: 32),
               const SizedBox(height: 8),
               TextField(
                 textInputAction: TextInputAction.search,
