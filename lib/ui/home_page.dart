@@ -1,6 +1,7 @@
 import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
 import 'package:dicoding_restaurant_app/ui/restaurant_favorite_page.dart';
 import 'package:dicoding_restaurant_app/ui/restaurant_search_page.dart';
+import 'package:dicoding_restaurant_app/ui/settings_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dicoding_restaurant_app/ui/restaurant_list_page.dart';
@@ -19,6 +20,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _bottomNavIndex = 0;
+
+  final PageController _pageController = PageController(
+    initialPage: 0,
+    keepPage: true,
+  );
 
   final List<BottomNavigationBarItem> _bottomNavBarItems = [
     const BottomNavigationBarItem(
@@ -43,7 +49,7 @@ class _HomePageState extends State<HomePage> {
     const RestaurantListPage(),
     const RestaurantSearchPage(),
     const RestaurantFavoritePage(),
-    const RestaurantSearchPage(),
+    const SettingsPage(),
   ];
 
   @override
@@ -59,7 +65,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: _listWidget[_bottomNavIndex],
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: _listWidget.length,
+          itemBuilder: (BuildContext buildContext, int index) {
+            return _listWidget[_bottomNavIndex];
+          },
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.blue,
@@ -68,9 +80,11 @@ class _HomePageState extends State<HomePage> {
         selectedFontSize: 12.0,
         currentIndex: _bottomNavIndex,
         items: _bottomNavBarItems,
-        onTap: (selected) {
+        onTap: (index) {
           setState(() {
-            _bottomNavIndex = selected;
+            _bottomNavIndex = index;
+            _pageController.animateToPage(index,
+                duration: const Duration(seconds: 1), curve: Curves.ease);
           });
         },
       ),
