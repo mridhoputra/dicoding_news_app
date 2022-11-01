@@ -1,3 +1,4 @@
+import 'package:dicoding_restaurant_app/common/navigation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dicoding_restaurant_app/ui/restaurant_detail_page.dart';
@@ -17,8 +18,7 @@ class RestaurantCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          Navigator.pushNamed(context, RestaurantDetailPage.routeName,
-              arguments: restaurant);
+          Navigation.intentWithData(RestaurantDetailPage.routeName, restaurant);
         },
         child: Padding(
           padding: const EdgeInsets.only(bottom: 8),

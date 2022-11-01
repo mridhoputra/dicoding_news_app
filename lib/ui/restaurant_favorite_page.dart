@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:dicoding_restaurant_app/widgets/restaurant_card.dart';
-import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
-import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';
 
 class RestaurantFavoritePage extends StatelessWidget {
   const RestaurantFavoritePage({Key? key}) : super(key: key);

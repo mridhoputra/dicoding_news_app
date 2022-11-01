@@ -1,4 +1,6 @@
+import 'package:dicoding_restaurant_app/common/navigation.dart';
 import 'package:dicoding_restaurant_app/provider/database_provider.dart';
+import 'package:dicoding_restaurant_app/utils/result_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -191,13 +193,13 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigation.goBack();
                 },
                 child: const Text('Batal'),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigation.goBack();
                   FocusScopeNode currentFocus = FocusScope.of(context);
                   currentFocus.unfocus();
 
@@ -257,7 +259,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                             color: Colors.white,
                           )),
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigation.goBack();
                       },
                     ),
                   ],

@@ -22,6 +22,10 @@ dependencies:
   path: ^1.8.2
   sqflite: ^2.2.0+2
   shared_preferences: ^2.0.15
+  flutter_local_notifications: ^12.0.3
+  rxdart: ^0.27.5
+  android_alarm_manager_plus: ^2.1.0
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
