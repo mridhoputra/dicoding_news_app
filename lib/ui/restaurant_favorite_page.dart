@@ -1,7 +1,8 @@
-import 'package:dicoding_restaurant_app/widgets/restaurant_card.dart';
+import 'package:dicoding_restaurant_app/provider/database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:dicoding_restaurant_app/widgets/restaurant_card.dart';
 import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
 import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';
 
@@ -9,36 +10,47 @@ class RestaurantFavoritePage extends StatelessWidget {
   const RestaurantFavoritePage({Key? key}) : super(key: key);
 
   Widget _buildList(BuildContext context) {
-    return Consumer<RestaurantsProvider>(
-      builder: (context, state, _) {
-        if (state.restaurantResultState == ResultState.loading) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                CircularProgressIndicator(),
-                SizedBox(height: 4),
-                Text('Loading...')
-              ],
-            ),
-          );
-        } else if (state.restaurantResultState == ResultState.hasData) {
-          RestaurantsResult restaurantsResult = state.restaurantResult!;
-          return ListView.builder(
-            itemCount: restaurantsResult.restaurants!.length,
-            itemBuilder: (context, index) {
-              return RestaurantCard(restaurant: restaurantsResult.restaurants![index]);
-            },
+    return Consumer<DatabaseProvider>(
+      builder: (context, databaseProvider, _) {
+        if (databaseProvider.restaurants.isEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.lightBlue.shade100,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.favorite_rounded,
+                  color: Colors.white,
+                  size: 64,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Restoran favorit masih kosong!',
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Suka dengan restoran yang kamu lihat? Tap ikon hati untuk simpan restoran favoritmu!',
+                style: Theme.of(context).textTheme.caption,
+                textAlign: TextAlign.center,
+              )
+            ],
           );
         } else {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 12),
-              const Text("Maaf, terjadi kesalahan."),
-              const SizedBox(height: 8),
-              Text(state.restaurantResultMessage),
-            ],
+          return ListView.builder(
+            itemCount: databaseProvider.restaurants.length,
+            itemBuilder: (context, index) {
+              return RestaurantCard(restaurant: databaseProvider.restaurants[index]);
+            },
           );
         }
       },
