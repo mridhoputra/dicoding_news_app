@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:dicoding_restaurant_app/common/navigation.dart';
+import 'package:dicoding_restaurant_app/data/model/restaurant_model.dart';
 import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:rxdart/rxdart.dart';
@@ -47,6 +49,7 @@ class NotificationHelper {
     var channelId = "1";
     var channelName = "channel_01";
     var channelDescription = "dicoding restaurant channel";
+    var randomIndex = Random().nextInt(restaurantsResult.restaurants!.length);
 
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(channelId, channelName,
         channelDescription: channelDescription,
@@ -61,19 +64,19 @@ class NotificationHelper {
       iOS: iOSPlatformChannelSpecifics,
     );
 
-    var titleNotification = "<b>Restaurant's Today</b>";
-    var titleNews = restaurantsResult.restaurants![0].name;
+    var titleNotification = "Restoran Pilihan Hari Ini!";
+    var titleNews =
+        'Sudah pernah ke <b>${restaurantsResult.restaurants![randomIndex].name}</b> belum nih?';
 
     await flutterLocalNotificationsPlugin.show(
         0, titleNotification, titleNews, platformChannelSpecifics,
-        payload: json.encode(restaurantsResult.toJson()));
+        payload: json.encode(restaurantsResult.restaurants![randomIndex].toJson()));
   }
 
   void configureSelectNotificationSubject(String route) {
     selectNotificationSubject.stream.listen(
       (String payload) async {
-        var data = RestaurantsResult.fromJson(json.decode(payload));
-        var restaurant = data.restaurants![0];
+        var restaurant = Restaurant.fromJson(json.decode(payload));
         Navigation.intentWithData(route, restaurant);
       },
     );
