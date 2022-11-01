@@ -1,4 +1,4 @@
-import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';
+import 'package:dicoding_restaurant_app/data/model/restaurant_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -23,16 +23,22 @@ class DatabaseHelper {
 
   Future<Database> _initializeDb() async {
     var path = await getDatabasesPath();
-    var db = openDatabase(join(path, '$_databaseName.db'), onCreate: (db, version) async {
-      await db.execute('''CREATE TABLE $_tableName (
-            id INTEGER PRIMARY KEY,
+    var db = openDatabase(
+      join(path, '$_databaseName.db'),
+      onCreate: (db, version) async {
+        await db.execute(
+          '''CREATE TABLE $_tableName (
+            id TEXT PRIMARY KEY,
             name TEXT, 
             description TEXT,
-            pictureId TEXT,
             city TEXT,
-            rating REAL,
-          ) ''');
-    }, version: 1);
+            pictureId TEXT,
+            rating REAL
+          )''',
+        );
+      },
+      version: 1,
+    );
     return db;
   }
 
@@ -47,7 +53,7 @@ class DatabaseHelper {
     return results.map((res) => Restaurant.fromJson(res)).toList();
   }
 
-  Future<Restaurant> getRestaurantById(int id) async {
+  Future<Restaurant> getRestaurantById(String id) async {
     final Database db = await database;
     List<Map<String, dynamic>> results = await db.query(
       _tableName,
@@ -58,7 +64,22 @@ class DatabaseHelper {
     return results.map((res) => Restaurant.fromJson(res)).first;
   }
 
-  Future<void> deleteRestaurant(int id) async {
+  Future<bool> checkFavoriteRestaurant(String id) async {
+    final Database db = await database;
+    List<Map<String, dynamic>> results = await db.query(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (results.isEmpty) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Future<void> deleteRestaurant(String id) async {
     final db = await database;
 
     await db.delete(

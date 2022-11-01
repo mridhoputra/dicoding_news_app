@@ -58,7 +58,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _listWidget[_bottomNavIndex],
+      body: SafeArea(
+        child: _listWidget[_bottomNavIndex],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,

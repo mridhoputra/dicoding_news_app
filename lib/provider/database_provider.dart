@@ -1,13 +1,16 @@
-import 'package:dicoding_restaurant_app/data/db/database_helper.dart';
-import 'package:dicoding_restaurant_app/data/model/restaurant_result_model.dart';
 import 'package:flutter/foundation.dart';
 
-class DatabaseProvider extends ChangeNotifier {
-  List<Restaurant> _restaurants = [];
+import 'package:dicoding_restaurant_app/data/db/database_helper.dart';
+import 'package:dicoding_restaurant_app/data/model/restaurant_model.dart';
 
+class DatabaseProvider extends ChangeNotifier {
   late DatabaseHelper _databaseHelper;
 
+  List<Restaurant> _restaurants = [];
   List<Restaurant> get restaurants => _restaurants;
+
+  bool _isFavoriteRestaurant = false;
+  bool get isFavoriteRestaurant => _isFavoriteRestaurant;
 
   DatabaseProvider() {
     _databaseHelper = DatabaseHelper();
@@ -22,14 +25,21 @@ class DatabaseProvider extends ChangeNotifier {
   Future<void> addRestaurant(Restaurant restaurant) async {
     await _databaseHelper.insertRestaurant(restaurant);
     _getAllFavoriteRestaurants();
+    checkFavoriteRestaurant(restaurant.id);
   }
 
-  Future<void> getRestaurantById(int id) async {
-    await _databaseHelper.getRestaurantById(id);
+  Future<Restaurant> getRestaurantById(String id) async {
+    return await _databaseHelper.getRestaurantById(id);
   }
 
-  void deleteRestaurant(int id) async {
+  void checkFavoriteRestaurant(String id) async {
+    _isFavoriteRestaurant = await _databaseHelper.checkFavoriteRestaurant(id);
+    notifyListeners();
+  }
+
+  void deleteRestaurant(String id) async {
     await _databaseHelper.deleteRestaurant(id);
     _getAllFavoriteRestaurants();
+    checkFavoriteRestaurant(id);
   }
 }

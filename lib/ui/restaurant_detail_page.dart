@@ -1,17 +1,18 @@
+import 'package:dicoding_restaurant_app/provider/database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:dicoding_restaurant_app/widgets/rating.dart';
 import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
-import 'package:dicoding_restaurant_app/data/model/restaurant_detail_model.dart';
+import 'package:dicoding_restaurant_app/data/model/restaurant_model.dart';
 
 class RestaurantDetailPage extends StatefulWidget {
   static const routeName = '/restaurant_detail';
 
-  final String idRestaurant;
+  final Restaurant restaurant;
 
-  const RestaurantDetailPage({Key? key, required this.idRestaurant}) : super(key: key);
+  const RestaurantDetailPage({Key? key, required this.restaurant}) : super(key: key);
 
   @override
   State<RestaurantDetailPage> createState() => _RestaurantDetailPageState();
@@ -202,7 +203,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
 
                   if (_reviewName != '' && _reviewText != '') {
                     state
-                        .fetchAddReview(widget.idRestaurant, _reviewName, _reviewText)
+                        .fetchAddReview(widget.restaurant.id, _reviewName, _reviewText)
                         .then(
                       (String result) {
                         Fluttertoast.showToast(
@@ -210,7 +211,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           toastLength: Toast.LENGTH_LONG,
                         );
                         if (result == 'Ulasan berhasil dikirim') {
-                          state.fetchDetailRestaurant(widget.idRestaurant);
+                          state.fetchDetailRestaurant(widget.restaurant.id);
                         }
                       },
                     );
@@ -233,9 +234,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
         ? (MediaQuery.of(context).size.height * 0.32)
         : (MediaQuery.of(context).size.height * 0.44);
 
-    return Consumer<RestaurantsProvider>(
-      builder: (context, state, _) {
-        if (state.restaurantDetailState == ResultState.loading) {
+    return Consumer2<RestaurantsProvider, DatabaseProvider>(
+      builder: (context, restaurantProvider, databaseProvider, _) {
+        if (restaurantProvider.restaurantDetailState == ResultState.loading) {
           return SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -274,8 +275,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               ],
             ),
           );
-        } else if (state.restaurantDetailState == ResultState.hasData) {
-          Restaurant restaurantDetail = state.restaurantDetail!.restaurant!;
+        } else if (restaurantProvider.restaurantDetailState == ResultState.hasData) {
+          Restaurant restaurantDetail = restaurantProvider.restaurantDetail!.restaurant!;
           return NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
@@ -302,11 +303,27 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: IconButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(content: Text('OK')));
+                            onPressed: () async {
+                              if (databaseProvider.isFavoriteRestaurant) {
+                                databaseProvider.deleteRestaurant(widget.restaurant.id);
+                                Fluttertoast.showToast(
+                                  msg: 'Telah dihapus dari favorit',
+                                  toastLength: Toast.LENGTH_LONG,
+                                );
+                              } else {
+                                databaseProvider.addRestaurant(widget.restaurant);
+                                Fluttertoast.showToast(
+                                  msg: 'Telah ditambahkan ke favorit',
+                                  toastLength: Toast.LENGTH_LONG,
+                                );
+                              }
                             },
-                            icon: Icon(Icons.favorite_border_rounded),
+                            icon: databaseProvider.isFavoriteRestaurant
+                                ? const Icon(
+                                    Icons.favorite_rounded,
+                                    color: Colors.red,
+                                  )
+                                : const Icon(Icons.favorite_border_rounded),
                           ),
                         )
                       ],
@@ -347,7 +364,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                         ),
                         const SizedBox(height: 12),
                         Row(
-                          children: restaurantDetail.categories.map((category) {
+                          children: restaurantDetail.categories!.map((category) {
                             return Container(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -378,9 +395,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                               ),
                         ),
                         ...List.generate(
-                            restaurantDetail.menus.foods.length,
+                            restaurantDetail.menus!.foods.length,
                             (index) =>
-                                Text('- ${restaurantDetail.menus.foods[index].name}')),
+                                Text('- ${restaurantDetail.menus!.foods[index].name}')),
                         const SizedBox(height: 8),
                         Text(
                           'Minuman:',
@@ -389,13 +406,14 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                               ),
                         ),
                         ...List.generate(
-                          restaurantDetail.menus.drinks.length,
-                          (index) => Text('- ${restaurantDetail.menus.drinks[index].name}'),
+                          restaurantDetail.menus!.drinks.length,
+                          (index) =>
+                              Text('- ${restaurantDetail.menus!.drinks[index].name}'),
                         ),
                         const SizedBox(height: 16),
                         _buildSectionListReview(context, restaurantDetail),
                         const SizedBox(height: 16),
-                        _buildSectionSendReview(context, state),
+                        _buildSectionSendReview(context, restaurantProvider),
                       ],
                     ),
                   ),
@@ -416,7 +434,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                     children: [
                       const Text('Maaf, terjadi kesalahan.'),
                       const SizedBox(height: 8),
-                      Text(state.restaurantDetailMessage),
+                      Text(restaurantProvider.restaurantDetailMessage),
                     ],
                   ),
                 )
@@ -434,7 +452,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Provider.of<RestaurantsProvider>(context, listen: false)
-          .fetchDetailRestaurant(widget.idRestaurant);
+          .fetchDetailRestaurant(widget.restaurant.id);
+      Provider.of<DatabaseProvider>(context, listen: false)
+          .checkFavoriteRestaurant(widget.restaurant.id);
     });
   }
 
