@@ -30,17 +30,18 @@ class PreferenceProvider extends ChangeNotifier {
   void _scheduleReminder(bool value) async {
     if (value) {
       print("Scheduling Reminder Activated");
-      await AndroidAlarmManager.oneShot(
-        const Duration(seconds: 5),
+      await AndroidAlarmManager.periodic(
+        const Duration(hours: 24),
         1,
         BackgroundService.callback,
-        //startAt: DateTimeHelper.format(),
+        startAt: DateTimeHelper.format(),
         exact: true,
         wakeup: true,
+        allowWhileIdle: true,
       );
     } else {
       print("Scheduling Reminder Deactivated");
-      //await AndroidAlarmManager.cancel(1);
+      await AndroidAlarmManager.cancel(1);
     }
   }
 }
