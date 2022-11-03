@@ -35,9 +35,9 @@ class PreferenceProvider extends ChangeNotifier {
         1,
         BackgroundService.callback,
         startAt: DateTimeHelper.format(),
-        exact: true,
         wakeup: true,
         allowWhileIdle: true,
+        rescheduleOnReboot: true,
       );
     } else {
       print("Scheduling Reminder Deactivated");

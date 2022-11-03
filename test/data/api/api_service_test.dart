@@ -27,6 +27,19 @@ void main() {
       expect(await ApiService().getAllRestaurant(), isA<RestaurantsResult>());
     });
 
+    test('throws an exception if the http call completes with an error', () {
+      final client = MockClient();
+
+      // Use Mockito to return an unsuccessful response when it calls the
+      // provided http.Client.
+      when(client.get(Uri.parse('$baseUrl/list')))
+          .thenAnswer((_) async => http.Response('Not Found', 404));
+
+      expect(ApiService().getAllRestaurant(), throwsException);
+    });
+  });
+
+  group('getRestaurantDetail', () {
     test('returns RestaurantDetail if the call http completes successfully', () async {
       final client = MockClient();
 
@@ -40,6 +53,19 @@ void main() {
           isA<RestaurantDetail>());
     });
 
+    test('throws an exception if the http call completes with an error', () {
+      final client = MockClient();
+
+      // Use Mockito to return an unsuccessful response when it calls the
+      // provided http.Client.
+      when(client.get(Uri.parse('$baseUrl/detail/$exampleIdRestaurant')))
+          .thenAnswer((_) async => http.Response('Not Found', 404));
+
+      expect(ApiService().getDetailRestaurant(exampleIdRestaurant), throwsException);
+    });
+  });
+
+  group('getRestaurantSearch', () {
     test('returns RestaurantSearch if the call http completes successfully', () async {
       final client = MockClient();
 
@@ -49,6 +75,17 @@ void main() {
           http.Response('{"error": false, "founded": 1, "restaurant": []}', 200));
 
       expect(await ApiService().getSearchRestaurant(exampleQuery), isA<RestaurantSearch>());
+    });
+
+    test('throws an exception if the http call completes with an error', () {
+      final client = MockClient();
+
+      // Use Mockito to return an unsuccessful response when it calls the
+      // provided http.Client.
+      when(client.get(Uri.parse('$baseUrl/search?q=$exampleQuery')))
+          .thenAnswer((_) async => http.Response('Not Found', 404));
+
+      expect(ApiService().getSearchRestaurant(exampleQuery), throwsException);
     });
   });
 }
