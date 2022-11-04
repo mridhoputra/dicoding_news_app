@@ -1,7 +1,8 @@
-import 'package:dicoding_restaurant_app/utils/result_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
+import 'package:dicoding_restaurant_app/utils/result_state.dart';
 import 'package:dicoding_restaurant_app/widgets/restaurant_card.dart';
 import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
 import 'package:dicoding_restaurant_app/data/model/restaurant_search_model.dart';
@@ -117,7 +118,7 @@ class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
                 FocusManager.instance.primaryFocus?.unfocus();
                 if (_query != '') {
                   Provider.of<RestaurantsProvider>(context, listen: false)
-                      .fetchRestaurantByName(_query);
+                      .fetchRestaurantByName(http.Client(), _query);
                 }
               },
             ),

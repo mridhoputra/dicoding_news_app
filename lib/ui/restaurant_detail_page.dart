@@ -1,13 +1,14 @@
-import 'package:dicoding_restaurant_app/common/navigation.dart';
-import 'package:dicoding_restaurant_app/provider/database_provider.dart';
-import 'package:dicoding_restaurant_app/utils/result_state.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:dicoding_restaurant_app/widgets/rating.dart';
-import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
+import 'package:dicoding_restaurant_app/common/navigation.dart';
+import 'package:dicoding_restaurant_app/utils/result_state.dart';
+import 'package:dicoding_restaurant_app/provider/database_provider.dart';
 import 'package:dicoding_restaurant_app/data/model/restaurant_model.dart';
+import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
 
 class RestaurantDetailPage extends StatefulWidget {
   static const routeName = '/restaurant_detail';
@@ -213,7 +214,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           toastLength: Toast.LENGTH_LONG,
                         );
                         if (result == 'Ulasan berhasil dikirim') {
-                          state.fetchDetailRestaurant(widget.restaurant.id);
+                          state.fetchDetailRestaurant(http.Client(), widget.restaurant.id);
                         }
                       },
                     );
@@ -454,7 +455,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Provider.of<RestaurantsProvider>(context, listen: false)
-          .fetchDetailRestaurant(widget.restaurant.id);
+          .fetchDetailRestaurant(http.Client(), widget.restaurant.id);
       Provider.of<DatabaseProvider>(context, listen: false)
           .checkFavoriteRestaurant(widget.restaurant.id);
     });

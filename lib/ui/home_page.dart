@@ -1,13 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:dicoding_restaurant_app/provider/restaurants_provider.dart';
 import 'package:dicoding_restaurant_app/ui/restaurant_detail_page.dart';
 import 'package:dicoding_restaurant_app/ui/restaurant_favorite_page.dart';
 import 'package:dicoding_restaurant_app/ui/restaurant_search_page.dart';
 import 'package:dicoding_restaurant_app/ui/settings_page.dart';
 import 'package:dicoding_restaurant_app/utils/notification_helper.dart';
-import 'package:flutter/material.dart';
 
 import 'package:dicoding_restaurant_app/ui/restaurant_list_page.dart';
-import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   static const routeName = '/home_page';
@@ -57,7 +59,8 @@ class _HomePageState extends State<HomePage> {
     _notificationHelper.configureSelectNotificationSubject(RestaurantDetailPage.routeName);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Provider.of<RestaurantsProvider>(context, listen: false).fetchAllRestaurants();
+      Provider.of<RestaurantsProvider>(context, listen: false)
+          .fetchAllRestaurants(http.Client());
     });
   }
 

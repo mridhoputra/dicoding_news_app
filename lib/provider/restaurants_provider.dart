@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:dicoding_restaurant_app/utils/result_state.dart';
 import 'package:dicoding_restaurant_app/data/api/api_service.dart';
@@ -39,11 +40,11 @@ class RestaurantsProvider extends ChangeNotifier {
   RestaurantSearch? get restaurantSearch => _restaurantSearch;
   RestaurantDetail? get restaurantDetail => _restaurantDetail;
 
-  Future<dynamic> fetchAllRestaurants() async {
+  Future<dynamic> fetchAllRestaurants(http.Client client) async {
     try {
       _restaurantResultState = ResultState.loading;
       notifyListeners();
-      final response = await apiService.getAllRestaurant();
+      final response = await apiService.getAllRestaurant(client);
       if (response.restaurants!.isEmpty) {
         _restaurantResultState = ResultState.noData;
         notifyListeners();
@@ -60,11 +61,11 @@ class RestaurantsProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> fetchRestaurantByName(String query) async {
+  Future<dynamic> fetchRestaurantByName(http.Client client, String query) async {
     try {
       _restaurantSearchState = ResultState.loading;
       notifyListeners();
-      final response = await apiService.getSearchRestaurant(query);
+      final response = await apiService.getSearchRestaurant(client, query);
       if (response.error!) {
         _restaurantSearchState = ResultState.error;
         notifyListeners();
@@ -85,11 +86,11 @@ class RestaurantsProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> fetchDetailRestaurant(String idRestaurant) async {
+  Future<dynamic> fetchDetailRestaurant(http.Client client, String idRestaurant) async {
     try {
       _restaurantDetailState = ResultState.loading;
       notifyListeners();
-      final response = await apiService.getDetailRestaurant(idRestaurant);
+      final response = await apiService.getDetailRestaurant(client, idRestaurant);
       if (response.error!) {
         _restaurantDetailState = ResultState.error;
         notifyListeners();
